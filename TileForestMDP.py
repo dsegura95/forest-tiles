@@ -175,8 +175,8 @@ class World:
 
 class MDP:
   """
-    Implementacion de un Markov Decision Process sobre una cuadricula con paredes
-    y agua.
+    Implementacion de un Markov Decision Process sobre una cuadricula con paredes,
+    agua, grama, piso liso y portales.
   """
   def __init__(
       self, world: World, 
@@ -318,6 +318,9 @@ class MDP:
     self.values = new_values
 
   def updateValue(self, state: Tuple[int, int]):
+    """
+      Actualiza el valor de estado de una sola casilla.
+    """
     new_value = 0
     for a, p_a in enumerate(self.actionsProbs(state)):
       for s, p_s in self.getStates(state, a):
@@ -467,6 +470,7 @@ class MDP:
     """
       Inicia la secuencia de movimiento a realizar por el agente en base a los 
       valores de estado aprendidos. Se imprime el mapa por cada movimiento.
+      Se seguira ejecutando hasta que el agente alcance alguna meta.
     """
     self.pos = self.world.pos
     totalCost = 0
@@ -514,8 +518,15 @@ if __name__ == '__main__':
   if len(argv) == 5: sleepTime = float(argv[4])
   else: sleepTime = 0.5
 
+  # Archivo con la descripcion del tile.
+  worldFile = argv[1]
+  # Numero de iteraciones en las que se aplicara VI.
+  iterations = int(argv[2])
+  # Probabilidad de escoger una accion aleatoria.
+  errorRate = float(argv[3])
+
   world = World()
-  world.read(argv[1])
-  mdp = MDP(world, 1, float(argv[3]), sleepTime)
-  mdp.viewUpdates(int(argv[2]))
+  world.read(worldFile)
+  mdp = MDP(world, 1, errorRate, sleepTime)
+  mdp.viewUpdates(iterations)
   mdp.play()
