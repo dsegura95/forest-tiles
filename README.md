@@ -63,7 +63,8 @@ la posicion `(M, N)`. La casilla en la que se encuentre el agente
 aparece como **MM** de color rojo.
 
 * `WALL <M> <N>` coloca una pared en la posicion `(M, N)`. El agente
-no se puede mover desde ni hacia las casillas que contengan una pared. Aparecen en la representacion del mapa como **@@** de color marron.
+no se puede mover desde ni hacia las casillas que contengan una pared. 
+Aparecen en la representacion del mapa como **@@** de color marron.
 
 * `HWALL <R> <A> <B>` coloca una pared horizontal desde la posicion
 `(R, A)` hasta `(R, B)`.
