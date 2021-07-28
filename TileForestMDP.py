@@ -170,7 +170,7 @@ class World:
         state: Tuple[int, int]  ->  Estado desde el que se movera.
     """
     if state in self.water: return -1 - self.penalWater 
-    elif state in self.floor: return -0.1
+    elif state in self.floor: return -0.05
     else: return -1
 
 class MDP:
@@ -209,46 +209,6 @@ class MDP:
     """
     if pos in self.world.portals: return self.world.portals[pos][0]
     else: return pos
-    
-  def actionsProbs(self, state: Tuple[int, int]) -> List[int]:
-    """
-      Obtenemos la probabilidad de cada accion a partir de un estado.
-
-      Argumentos:
-        state: Tuple[int, int]  ->  Estado desde el que se mueve.
-      Salida:
-        List[int] ->  Probabilidad de movernos TOP, RIGHT, DOWN, LEFT respectivamente.
-    """
-    probs = []
-
-    if state in self.world.grass: return [0.25]*4
-
-    # Almacenamos el valor de los estados resultantes al realizar cada accion.
-    y, x = state[0] - (state[0] > 0), state[1]
-    if (y, x) in self.world.walls: y, x = state[0], state[1]
-    y, x = self.verifyPortal((y, x))
-    probs.append(self.values[y][x])
-
-    y, x = state[0], state[1] + (state[1] < self.world.N-1)
-    if (y, x) in self.world.walls: y, x = state[0], state[1]
-    y, x = self.verifyPortal((y, x))
-    probs.append(self.values[y][x])
-
-    y, x = state[0] + (state[0] < self.world.M-1), state[1]
-    if (y, x) in self.world.walls: y, x = state[0], state[1]
-    y, x = self.verifyPortal((y, x))
-    probs.append(self.values[y][x])
-
-    y, x = state[0], state[1] - (state[1] > 0)
-    if (y, x) in self.world.walls: y, x = state[0], state[1]
-    y, x = self.verifyPortal((y, x))
-    probs.append(self.values[y][x])
-
-    # Aplicamos exponenciacion a cada valor para que sean positivos.
-    probs = [2 ** p for p in probs]
-
-    valSums = sum(probs)
-    return [p / valSums for p in probs]
     
   def getStates(self, state: Tuple[int, int], action: int) -> List[Tuple[Tuple[int, int], int]]:
     """
@@ -306,14 +266,25 @@ class MDP:
         # Por cada posible estado
         state = (m, n)
 
-        if not state in self.world.walls:
-          for a, p_a in enumerate(self.actionsProbs(state)):
+        # Si el estado se encuentra en grama, entonces el nuevo valor sera el promedio
+        # de los valores obtenidos por cada accion
+        if state in self.world.grass:
+          new_values[m][n] = 0
+          for a in ACTIONS:
             for s, p_s in self.getStates(state, a):
-              # No actualizamos los estados objetivos
-              if not state in self.world.goals:
-                # Actualizamos el valor del estado (m,n)
-                new_values[m][n] += p_a * p_s * \
-                  (self.world.reward(state) + self.gamma * self.values[s[0]][s[1]])
+              # Actualizamos el valor del estado (m,n)
+              new_values[m][n] += p_s * (self.world.reward(state) + self.gamma * self.values[s[0]][s[1]]) / 4
+
+        # En caso contrario, si no es una pared ni un GOAL, se toma la accion que maximice
+        # el valor de estado
+        elif not state in self.world.walls and not state in self.world.goals:
+          new_values[m][n] = -float('inf')
+          for a in ACTIONS:
+            value_a = 0
+            for s, p_s in self.getStates(state, a):
+              # Actualizamos el valor del estado (m,n)
+              value_a += p_s * (self.world.reward(state) + self.gamma * self.values[s[0]][s[1]])
+            new_values[m][n] = max(new_values[m][n], value_a)
 
     self.values = new_values
 
@@ -322,13 +293,26 @@ class MDP:
       Actualiza el valor de estado de una sola casilla.
     """
     new_value = 0
-    for a, p_a in enumerate(self.actionsProbs(state)):
-      for s, p_s in self.getStates(state, a):
-        # No actualizamos los estados objetivos
-        if not state in self.world.goals:
+
+    # Si el estado se encuentra en grama, entonces el nuevo valor sera el promedio
+    # de los valores obtenidos por cada accion
+    if state in self.world.grass:
+      for a in ACTIONS:
+        for s, p_s in self.getStates(state, a):
           # Actualizamos el valor del estado (m,n)
-          new_value += p_a * p_s * \
-            (self.world.reward(state) + self.gamma * self.values[s[0]][s[1]])
+          new_value += p_s * (self.world.reward(state) + self.gamma * self.values[s[0]][s[1]]) / 4
+
+    # En caso contrario, si no es una pared ni un GOAL, se toma la accion que maximice
+    # el valor de estado
+    elif not state in self.world.walls and not state in self.world.goals:
+      new_value = -float('inf')
+      for a in ACTIONS:
+        value_a = 0
+        for s, p_s in self.getStates(state, a):
+          # Actualizamos el valor del estado (m,n)
+          value_a += p_s * (self.world.reward(state) + self.gamma * self.values[s[0]][s[1]])
+        new_value = max(new_value, value_a)
+
     self.values[state[0]][state[1]] = new_value
  
   def printWorld(self):
