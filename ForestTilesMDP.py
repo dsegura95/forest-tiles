@@ -493,7 +493,7 @@ if __name__ == '__main__':
   if len(argv) != 4 and len(argv) != 5:
     print(
       f'\033[1;31mError.\033[0m Sintaxis invalida. Ejecute el script como\n\n' +\
-      '    \033[1mpython TileForestMDP.py\033[0m \033[4mWORLD_FILE\033[0m ' +\
+      '    \033[1mpython ForestTilesMDP.py\033[0m \033[4mWORLD_FILE\033[0m ' +\
       '\033[4mITERATIONS\033[0m \033[4mERROR_RATE\033[0m [ \033[4mSLEEP_TIME\033[0m ]',
       file=stderr
     )
