@@ -1,12 +1,12 @@
 ## *CI5437 - Inteligencia Aritificial I* 
-# **Proyecto 4: Tile Forest MDP**
+# **Proyecto 4: Forest Tiles MDP**
 
-**Tile Forest** es un *Markov Decision Process* donde un agente
+**Forest Tiles** es un *Markov Decision Process* donde un agente
 debe moverse a través de un mapa cuadrado con elementos como
 rocas, charcos, grama, etc hasta llegar a alguna casilla *GOAL*. 
 El objetivo de este proyecto es visualizar los valores de estado 
 aprendidos por el agente utilizando los métodos de *Value Iteration* 
-y *Real Time Dinamyc Programming*, mientras resuelve un *Tile Forest*.
+y *Real Time Dinamyc Programming*, mientras resuelve un *Forest Tiles*.
  
 ## **Requisitos**
 
@@ -17,7 +17,7 @@ y *Real Time Dinamyc Programming*, mientras resuelve un *Tile Forest*.
 Para ejecutar el script se debe seguir la siguiente sintaxis:
 
 ```bash
-python TileForestMDP.py WORLD ITERATIONS ERROR_RATE [SLEEP_TIME]
+python ForestTilesMDP.py WORLD ITERATIONS ERROR_RATE [SLEEP_TIME]
 ```
 
 Donde ```WORLD``` es la dirección de un archivo que contiene las
